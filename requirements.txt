@@ -1,0 +1,6 @@
+pandas
+mysql-connector-python
+matplotlib
+seaborn
+scikit-learn
+prophet
