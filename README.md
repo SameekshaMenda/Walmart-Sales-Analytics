@@ -42,5 +42,5 @@ The datasets used in this project are from [Kaggle - Walmart Sales Forecasting](
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/Retail-Sales-Forecasting.git
+git clone https://github.com/SameekshaMenda/Walmart-Sales-Analytics.git
 cd Retail-Sales-Forecasting
