@@ -1,19 +1,26 @@
-from prophet import Prophet
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 
-df = pd.read_csv('../data/train.csv')
-df = df[df['Store'] == 1]  # Forecast for Store 1
+df = pd.read_csv("../data/train.csv")
 
-# Prepare data for Prophet
-df_prophet = df[['Date', 'Weekly_Sales']].rename(columns={'Date': 'ds', 'Weekly_Sales': 'y'})
+# Feature engineering
+df['Date'] = pd.to_datetime(df['Date'])
+df['Year'] = df['Date'].dt.year
+df['Month'] = df['Date'].dt.month
+df['Week'] = df['Date'].dt.isocalendar().week
 
-# Model
-model = Prophet()
-model.fit(df_prophet)
+features = ['Store', 'Dept', 'Year', 'Month', 'Week', 'IsHoliday']
+X = df[features]
+y = df['Weekly_Sales']
 
-# Future dates
-future = model.make_future_dataframe(periods=12, freq='W')
-forecast = model.predict(future)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Save results
-forecast[['ds', 'yhat']].to_csv('../data/store1_forecast.csv', index=False)
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+rmse = root_mean_squared_error(y_test, y_pred, squared=False)
+print(f"✅ Model RMSE: {rmse}")

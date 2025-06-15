@@ -1,32 +1,18 @@
 import pandas as pd
-import mysql.connector
+from forecasting_model import model  # Import your trained model
+test_df = pd.read_csv("../data/test.csv")
 
-df = pd.read_csv('../data/store1_forecast.csv')
+# Feature Engineering
+test_df['Date'] = pd.to_datetime(test_df['Date'])
+test_df['Year'] = test_df['Date'].dt.year
+test_df['Month'] = test_df['Date'].dt.month
+test_df['Week'] = test_df['Date'].dt.isocalendar().week
 
-conn = mysql.connector.connect(
-    host='localhost',
-    user='your_username',
-    password='your_password',
-    database='walmart_sales'
-)
+features = ['Store', 'Dept', 'Year', 'Month', 'Week', 'IsHoliday']
+X_test = test_df[features]
 
-cursor = conn.cursor()
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS forecast_store1 (
-        date DATE,
-        predicted_sales FLOAT
-    )
-""")
+# Predict
+test_df['Predicted_Sales'] = model.predict(X_test)
+test_df.to_csv("../data/predictions.csv", index=False)
 
-for _, row in df.iterrows():
-    cursor.execute("""
-        INSERT INTO forecast_store1 (date, predicted_sales)
-        VALUES (%s, %s)
-    """, (
-        row['ds'],
-        row['yhat']
-    ))
-
-conn.commit()
-cursor.close()
-conn.close()
+print("✅ Predictions exported to data/predictions.csv")
